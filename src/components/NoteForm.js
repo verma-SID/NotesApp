@@ -18,7 +18,7 @@ const NoteForm = ({
         onChange={onTitleChange}
       />
       <textarea
-        placeholder="description"
+        placeholder="Description"
         value={currentNote.description}
         onChange={onDescriptionChange}
       />

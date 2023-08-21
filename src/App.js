@@ -51,7 +51,8 @@ function App() {
   };
 
   const editNote = (index) => {
-    setCurrentNote(notes[index]);
+    setEditingIndex(index);
+    setCurrentNote({ ...notes[index] }); // Copy the note to edit
     setAddingNote(true);
   };
 
