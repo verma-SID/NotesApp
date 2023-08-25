@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import NoteForm from "./components/NoteForm";
 import NoteList from "./components/NoteList";
+import NoteView from "./components/NoteView";
 
 function App() {
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(() => {
+    return JSON.parse(localStorage.getItem("notes")) || []
+  });
 
   const [addingNote, setAddingNote] = useState(false);
   const [currentNote, setCurrentNote] = useState({
@@ -13,6 +16,13 @@ function App() {
     description: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
+
+  const [selectedNote, setSelectedNote] = useState(null);
+  
+  useEffect(() => {
+    console.log("Saving data to local storage");
+    localStorage.setItem("notes", JSON.stringify(notes));
+  }, [notes]);
 
   const onTitleChange = (event) => {
     setCurrentNote({
@@ -29,17 +39,16 @@ function App() {
   };
 
   const onCreateNote = () => {
-    if (currentNote.title && currentNote.description) {
+    if(currentNote.title && currentNote.description){
       if (editingIndex !== null) {
         const updatedNotes = [...notes];
         updatedNotes[editingIndex] = currentNote;
         setNotes(updatedNotes);
-        setCurrentNote({ title: "", description: "" });
         setEditingIndex(null);
       } else {
         setNotes([...notes, currentNote]);
-        setCurrentNote({ title: "", description: "" });
       }
+      setCurrentNote({ title: "", description: "" });
       setAddingNote(false);
     }
   };
@@ -60,6 +69,15 @@ function App() {
     const updatedNotes = [...notes];
     updatedNotes.splice(index, 1);
     setNotes(updatedNotes);
+    setSelectedNote(null); 
+  };
+
+  const viewNote = (note) => {
+    setSelectedNote(note);
+  };
+
+  const closeViewNote = () => {
+    setSelectedNote(null);
   };
 
   return (
@@ -74,13 +92,16 @@ function App() {
           onCreateNote={onCreateNote}
           onCancelNote={onCancelNote}
         />
+      ) : selectedNote ? (
+        <NoteView selectedNote={selectedNote} closeNoteView={closeViewNote} />
       ) : (
         <NoteList
           notes={notes}
           editNote={editNote}
           deleteNote={deleteNote}
           setAddingNote={setAddingNote}
-          setNotes={setNotes} 
+          setNotes={setNotes}
+          viewNote={viewNote}
         />
       )}
     </div>
